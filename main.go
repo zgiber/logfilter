@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
-	"time"
 )
 
 func main() {
@@ -14,7 +12,7 @@ func main() {
 	scn := bufio.NewScanner(os.Stdin)
 
 	for scn.Scan() {
-		m := map[string]interface{}{}
+		m := logEntry{}
 		b := scn.Bytes()
 		err := json.Unmarshal(b, &m)
 		if err != nil {
@@ -22,13 +20,7 @@ func main() {
 			continue
 		}
 
-		se := &standardEntry{}
-		err = json.Unmarshal(b, se)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		fmt.Println(se)
+		fmt.Println(m)
 	}
 
 	if err := scn.Err(); err != nil {
@@ -36,46 +28,43 @@ func main() {
 	}
 }
 
-func clean(m map[string]interface{}) {
-	knownFields := []string{"time", "level", "file", "func", "msg", "trace_id", "traceid"}
-	for _, field := range knownFields {
-		delete(m, field)
-	}
-}
+type logEntry map[string]interface{}
 
-type standardEntry struct {
-	Time         time.Time
-	Level        string
-	File         string
-	Func         string
-	Msg          string
-	TraceID      string
-	customFields map[string]interface{}
-}
-
-func (se *standardEntry) String() string {
-	customFields := []string{}
-	for k, v := range se.customFields {
-		customFields = append(customFields, fmt.Sprintf("%s=%s", strings.ToTitle(k), v))
-	}
+func (e logEntry) String() string {
+	// maintain the ordering using the slice
+	// for known fields
+	expectedFields := []string{
+		"time", "level", "msg", "file", "func", "trace_id"}
 
 	out := ""
-	if !se.Time.IsZero() {
-		out = fmt.Sprintf("%v - %s", se.Time, out)
+	for _, fieldKey := range expectedFields {
+		v, exists := e[fieldKey]
+		if !exists {
+			continue
+		}
+
+		// some basic formatting for known fields
+		switch fieldKey {
+		case "time":
+			out = fmt.Sprint(v)
+		case "level":
+			out = fmt.Sprintf("%s [%s]", out, v)
+		case "msg":
+			out = fmt.Sprintf("%s '%s'", out, v)
+		case "file":
+			out = fmt.Sprintf("%s file=%s", out, v)
+		case "func":
+			out = fmt.Sprintf("%s func=%s", out, v)
+		case "trace_id":
+			out = fmt.Sprintf("%s trace_id=%s", out, v)
+		}
+		delete(e, fieldKey)
 	}
 
-	if se.Level != "" {
-		out = fmt.Sprintf("%s[%s]", out, strings.ToUpper(se.Level))
+	// custom fields in whatever order
+	for k, v := range e {
+		out = fmt.Sprintf("%s %s=%v", out, k, v)
 	}
 
-	if se.File != "" {
-		out = fmt.Sprintf("%s File=%s", out, se.File)
-	}
-
-	if se.Func != "" {
-		out = fmt.Sprintf("%s Func=%s", out, se.Func)
-	}
-
-	return fmt.Sprintf("%s '%s' %s",
-		out, se.Msg, strings.Join(customFields, " "))
+	return out
 }
