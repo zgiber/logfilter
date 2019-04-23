@@ -5,8 +5,8 @@ Log entries must be newline delimited, one JSON log must be a single line.
 
 There are a few fields which it does understand and prints with special formatting:
 - time (RFC3339)
-- level string
-- msg   string
+- level (string)
+- msg   (string)
 
 # How?
 
@@ -17,3 +17,7 @@ There are a few fields which it does understand and prints with special formatti
 ## Feed it with things
 
 cat my_mixed.log | logfilter
+
+# Notes
+
+This is a rudimentary single purpose tool, might change, might not.
