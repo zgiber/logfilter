@@ -5,6 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
+)
+
+const (
+	red    = "\u001b[31m"
+	green  = "\u001b[32m"
+	yellow = "\u001b[33m"
+	white  = "\u001b[37m"
+	reset  = "\u001b[0m"
 )
 
 func main() {
@@ -31,23 +40,33 @@ func main() {
 type logEntry map[string]interface{}
 
 func (e logEntry) String() string {
-	// maintain the ordering using the slice
-	// for known fields
+	// maintain the ordering
+	// for some known fields
 	expectedFields := []string{
 		"time", "level", "msg", "file", "func", "trace_id"}
 
 	out := ""
+	colored := wrap(white)
 	for _, fieldKey := range expectedFields {
 		v, exists := e[fieldKey]
 		if !exists {
 			continue
 		}
 
-		// some basic formatting for known fields
+		// basic formatting for known fields
 		switch fieldKey {
 		case "time":
 			out = fmt.Sprint(v)
 		case "level":
+			switch strings.ToLower(fmt.Sprint(v)) {
+			case "debug":
+				colored = wrap(green)
+			case "info":
+			case "warning":
+				colored = wrap(yellow)
+			case "error":
+				colored = wrap(red)
+			}
 			out = fmt.Sprintf("%s [%s]", out, v)
 		case "msg":
 			out = fmt.Sprintf("%s '%s'", out, v)
@@ -66,5 +85,11 @@ func (e logEntry) String() string {
 		out = fmt.Sprintf("%s %s=%v", out, k, v)
 	}
 
-	return out
+	return colored(out)
+}
+
+func wrap(color string) func(string) string {
+	return func(text string) string {
+		return fmt.Sprintf("%s%s%s", color, text, reset)
+	}
 }
