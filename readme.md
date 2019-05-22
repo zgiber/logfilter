@@ -1,6 +1,6 @@
 # What?
 
-Display logs which are mixed JSON & text outputs in a human readable format. It's written specifically for one use case but displays any JSON.
+Display logs which are mixed JSON & text outputs in a human readable format. It's written specifically for one use case but displays any JSON formatted log.
 Log entries must be newline delimited, one JSON log entry must be a single line.
 
 There are a few fields which it does understand and prints with special formatting:
