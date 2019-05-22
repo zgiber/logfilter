@@ -28,7 +28,7 @@ There are a few fields which it does understand and prints with special formatti
   comes in multiple lines
   which are not linked by anything
 {"level":"INFO","file":"stuff.go:34","time":"2018-01-01T23:12:36.456Z","msg":"something else happened again"}
-{"level":"ERROR","file":"stuff.go:34","time":"2018-01-01T23:12:37.456Z","msg":"something else happened yet again"}
+{"level":"ERROR","file":"stuff.go:34","time":"2018-01-01T23:12:37.456Z","msg":"something else happened yet again\n\tin multiple lines\n\tbecause we can"}
 
 ▸ logfilter git:(master) cat ~/jsonlog.json | logfilter
 2018-01-01T23:12:34.456Z [debug] 'something happened' file=stuff.go:34
@@ -41,7 +41,9 @@ There are a few fields which it does understand and prints with special formatti
   comes in multiple lines
   which are not linked by anything
 2018-01-01T23:12:36.456Z [INFO] 'something else happened again' file=stuff.go:34
-2018-01-01T23:12:37.456Z [ERROR] 'something else happened yet again' file=stuff.go:34
+2018-01-01T23:12:37.456Z [ERROR] 'something else happened yet again
+	in multiple lines
+	because we can' file=stuff.go:34
 ```
 
 # Notes
