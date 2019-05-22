@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 const (
@@ -15,6 +17,8 @@ const (
 	white  = "\u001b[37m"
 	reset  = "\u001b[0m"
 )
+
+var isTerminal = terminal.IsTerminal(int(os.Stdout.Fd()))
 
 func main() {
 	// read from stdin line by line
@@ -90,6 +94,9 @@ func (e logEntry) String() string {
 
 func wrap(color string) func(string) string {
 	return func(text string) string {
+		if !isTerminal {
+			return text
+		}
 		return fmt.Sprintf("%s%s%s", color, text, reset)
 	}
 }
