@@ -20,4 +20,5 @@ cat my_mixed.log | logfilter
 
 # Notes
 
-This is a rudimentary single purpose tool, might change, might not.
+At the moment this is a single purpose tool, without much reason to have it changed.
+One nice feature would be to support multiline JSON without too much overhead.
